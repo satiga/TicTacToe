@@ -1,11 +1,13 @@
 package com.example.satiga.tictactoe;
 
 
-public class Game {
+import java.io.Serializable;
+
+public class Game implements Serializable {
     final private int BOARD_SIZE = 3;
     private TileState[][] board;
     private Boolean playerOneTurn;
-    private int movesPlayed;
+    private int movesPlayed = 0;
     private Boolean gameOver;
 
     public Game() {
@@ -19,40 +21,61 @@ public class Game {
     }
 
     public TileState choose(int row, int column) {
-        TileState tileState = TileState[row][column];
-        if (tileState == TileState.BLANK) {
-            if (playerOneTurn) {
-                playerOneTurn = false;
-                return TileState.CROSS;
-            }
-            else {
-                playerOneTurn = true;
-                return TileState.CIRCLE;
-            }
-        }
-        else {
+        if (gameOver) {
             return TileState.INVALID;
         }
-    }
-
-    public GameState won(int row, int column) {
-        TileState tilestate = TileState[row][column];
-        switch (row) {
-            case 0:
-
-            case 1:
-            case 2:
-        }
-        int blankCounter = 0;
-        for (int rowNo: BOARD_SIZE) {
-            for (int colNo: BOARD_SIZE) {
-                if (TileState[rowNo][colNo] == TileState.BLANK) {
-                    blankCounter++;
+        else {
+            TileState tileState = board[row][column];
+            if (tileState == TileState.BLANK) {
+                if (playerOneTurn) {
+                    playerOneTurn = false;
+                    movesPlayed++;
+                    board[row][column] = TileState.CROSS;
+                    return TileState.CROSS;
+                } else {
+                    playerOneTurn = true;
+                    movesPlayed++;
+                    board[row][column] = TileState.CIRCLE;
+                    return TileState.CIRCLE;
                 }
+            } else {
+                return TileState.INVALID;
             }
         }
-        if (blankCounter == 0) {
+    }
+
+
+    public GameState won(int row, int column) {
+        TileState cur_tile = board[row][column];
+        GameState winner = GameState.PLAYER_ONE;
+        switch (cur_tile) {
+            case CROSS:  winner = GameState.PLAYER_ONE;
+                         break;
+            case CIRCLE: winner = GameState.PLAYER_TWO;
+                         break;
+            default: break;
+        }
+        // check rows
+        int row_oc = 0; int col_oc = 0;
+        int dia_oc1 = 0; int dia_oc2 = 0;
+
+        for (int i = 0;i<3;i++) {
+            if (board[row][i]==cur_tile) row_oc++;
+            if (board[i][i]==cur_tile) dia_oc1++;
+            if (board[i][column]==cur_tile) col_oc++;
+            if (board[i][2-i]==cur_tile) dia_oc2++;
+        }
+
+        if (row_oc==3||col_oc==3||dia_oc1==3||dia_oc2==3) {
+            gameOver = true;
+            return winner;
+        }
+
+        if (movesPlayed == 9) {
+            gameOver = true;
             return GameState.DRAW;
         }
+    return GameState.IN_PROGRESS;
     }
+
 }

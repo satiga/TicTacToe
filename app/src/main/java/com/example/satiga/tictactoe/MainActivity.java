@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,6 +18,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         game = new Game();
+//        if (savedInstanceState != null) {
+//            game = savedInstanceState.getSerializable("currentGame");
+//        }
     }
 
     public void titleClicked(View view) {
@@ -53,16 +57,21 @@ public class MainActivity extends AppCompatActivity {
                           break;
             case CIRCLE:  button.setText("O");
                           break;
-            case INVALID: // text  terug geven?
+            case INVALID: // popup box?
                           break;
 
         }
-        GameState gState = game.won(row, column);
+        TextView text = findViewById(R.id.textView);
+        GameState gState;
+        gState = game.won(row, column);
         switch(gState) {
-            case PLAYER_ONE:
-            case PLAYER_TWO:
-            case DRAW: error
-            default: break;
+            case PLAYER_ONE:  text.setText("Player One won!!");
+                              break;
+            case PLAYER_TWO:  text.setText("Player Two won!!");
+                              break;
+            case DRAW:        text.setText("DRAW! Try again!");
+                              break;
+            case IN_PROGRESS: break;
         }
     }
 
@@ -76,6 +85,14 @@ public class MainActivity extends AppCompatActivity {
         for (int i=0; i<allGameButtons.size(); i++) {
             Button button = findViewById(allGameButtons.get(i));
             button.setText("");
+        TextView text = findViewById(R.id.textView);
+        text.setText("");
         }
+    }
+
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Game saveGame = game;
+        outState.putSerializable("currentGame",saveGame);
     }
 }
